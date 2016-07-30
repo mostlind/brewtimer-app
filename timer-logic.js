@@ -17,8 +17,6 @@ const Timer = React.createClass ({
   getInitialState: function () {
     return {
       seconds: 0,
-      displaySeconds: 0,
-      displayMinutes: 0,
       timerString: 'Brew!',
       timerRunning: false
     }
@@ -37,7 +35,6 @@ const Timer = React.createClass ({
   startTimer: function () {
 
     let timerBehavior = this.timerBehavior
-  
     let timer = this.setInterval(timerBehavior, 200)
     
     this.setState(
@@ -51,17 +48,13 @@ const Timer = React.createClass ({
 
   timerBehavior: function () {
       let seconds = this.state.seconds + 1
-      let displayMinutes = this.state.displayMinutes
-      let displaySeconds = seconds % 60
       let timerString = ''
 
-      if (seconds >= 300) {
+      if (seconds >= 210) {
         this.clearInterval(this.state.timer)
         this.setState(
           {
             seconds: 0,
-            displaySeconds: 0,
-            displayMinutes: 0,
             timerString: 'Done!',
             timerRunning: false
           }
@@ -69,22 +62,25 @@ const Timer = React.createClass ({
         return
       }
 
-      if (seconds % 60 === 0 && seconds !== 0) {
-        displayMinutes += 1
-      }
-
-      timerString = '' + displayMinutes + ':' + (displaySeconds.toString().length > 1 ? displaySeconds : '0' + displaySeconds)
-      
+      timerString = this.displayTime(seconds)
 
       this.setState(
-        {
-          seconds: seconds,
-          displaySeconds: displaySeconds,
-          displayMinutes: displayMinutes,
-          timerString: timerString,
-        }
-      )
+      {
+        seconds: seconds,
+        timerString: timerString,
+      }
+    )
 
+
+  },
+  displayTime: function (seconds) {
+
+    let displayMinutes = Math.floor(seconds / 60)
+    let displaySeconds = seconds % 60
+
+    let timerString = '' + displayMinutes + ':' + (displaySeconds.toString().length > 1 ? displaySeconds : '0' + displaySeconds)
+
+    return timerString
 
   },
 

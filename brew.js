@@ -7,7 +7,7 @@ import {
   View,
   TouchableHighlight
 } from 'react-native';
-Timer = require('./timerLogic.js')
+Timer = require('./timer-logic.js')
 Nav = require('./nav.js')
 
 class Brew extends Component {
@@ -21,7 +21,8 @@ class Brew extends Component {
         />
         <View style={styles.helloView}>
           <Image style={styles.frenchPressIcon} 
-            source={this.props.isChemex 
+            source={
+              this.props.isChemex 
               ? require("./img/chemexIcon.png") 
               : require("./img/FrenchPressIcon.png")
             } 
@@ -39,8 +40,8 @@ class Brew extends Component {
   goToOptions () {
     if(this.props.isChemex)
       this.props.navigator.push({id: 'pourover-options', name: 'Pourover Options'})
-    //else
-      //go to press options
+    else
+      this.props.navigator.push({id: 'press-options', name: 'Frech Press Options'})
   }
 }
 

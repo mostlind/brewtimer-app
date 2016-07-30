@@ -45,35 +45,41 @@ const InfoPage = React.createClass({
         <Nav style={styles.nav} title={this.props.title} left={{title: 'Back', goto: this.goBack}} />
         <View style={styles.mainView}>
           <Text>Coffee to Water Ratio</Text>
-          <Text>1:</Text>
-          <TextInput 
-            keyboardType={'numeric'} 
-            onChangeText={(e) => this.setState({ratio: +e})}
-            onEndEditing={this.calculateWater}
-            value={this.state.ratio + ""} 
-            style={{height: 40}} 
-            maxLength={5}
-          />
+          <View style={styles.section}>
+            <Text style={styles.label}>1:</Text>
+            <TextInput 
+              keyboardType={'numeric'} 
+              onChangeText={(e) => this.setState({ratio: +e})}
+              onEndEditing={this.calculateWater}
+              value={this.state.ratio + ""} 
+              style={styles.input} 
+              maxLength={5}
+            />
+          </View>
 
           <Text>Water</Text>
-          <TextInput 
-            keyboardType={'numeric'}  
-            onChangeText={(e) => this.setState({water: +e})}
-            onEndEditing={this.calculateCoffee} 
-            value={this.state.water.toString()} 
-            style={{height: 40}} 
-          />
-          <Text>g</Text>
+          <View style={styles.section}>
+            <TextInput 
+              keyboardType={'numeric'}  
+              onChangeText={(e) => this.setState({water: +e})}
+              onEndEditing={this.calculateCoffee} 
+              value={this.state.water.toString()} 
+              style={styles.input} 
+            />
+            <Text style={styles.label}>g</Text>
+          </View>
 
           <Text>Coffee</Text>
-          <TextInput 
-            keyboardType='numeric' 
-            onChangeText={(e) => this.setState({coffee: +e})}
-            onEndEditing={this.calculateWater}
-            value={this.state.coffee.toString()} 
-            style={{height: 40}} 
-          />
-          <Text>g</Text>
+          <View style={styles.section}>
+            <TextInput 
+              keyboardType='numeric' 
+              onChangeText={(e) => this.setState({coffee: +e})}
+              onEndEditing={this.calculateWater}
+              value={this.state.coffee.toString()} 
+              style={styles.input} 
+            />
+            <Text style={styles.label}>g</Text>
+          </View>
           <TouchableHighlight onPress={this.save}>
             <Text>{this.state.save}</Text>
           </TouchableHighlight>
@@ -123,10 +129,26 @@ const styles = StyleSheet.create({
     container: {
       flex: 1
     },
+    section: {
+      flexDirection: 'row',
+      justifyContent: 'center'
+    },
     mainView: {
       flex: 0.93,
       justifyContent: 'space-around',
-      alignItems: 'center'
+      alignItems: 'center',
+      backgroundColor: '#f5efbb'
+    },
+    label: {
+      fontSize: 40
+    },
+    input: {
+      height: 40,
+      width: 80,
+      fontSize: 40,
+      borderWidth: 2,
+      borderColor: '#333333',
+      textAlign: 'right'
     }
 
 });

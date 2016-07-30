@@ -17,6 +17,7 @@ import {
 const MainPage = require("./mainpage")
 const Brew = require("./brew")
 const PouroverOptions = require("./pourover-options")
+const PressOptions = require('./press-options.js')
 const InfoPage = require('./infopage')
 
 
@@ -55,6 +56,13 @@ class brewtimer extends Component {
         <PouroverOptions title={route.name} navigator={navigator} />
       )
     }
+
+    if (route.id === 'press-options') {
+      return (
+        <PressOptions title={route.name} navigator={navigator} />
+      )
+    }
+
     if (route.id === 'infopage') {
       return (
         <InfoPage title={route.name} navigator={navigator} />

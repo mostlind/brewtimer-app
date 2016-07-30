@@ -1,40 +1,38 @@
 import React, { Component } from 'react';
+import {range} from 'lodash'
 import {
   AppRegistry,
   StyleSheet,
   Image,
   Text,
+  Picker,
   View,
   Slider,
-  Picker,
   TouchableHighlight
 } from 'react-native';
-import {range} from 'lodash'
 
 const Nav = require('./nav.js')
 
-class PouroverOptions extends Component {
+class PressOptions extends Component {
 
   constructor(props) {
     super(props)
 
     this.state = {
-      timeValue: 210,
-      numberOfPulses: 3,
-      minutes: 3,
-      seconds: 30
+      timeValue: 240,
+      minutes: 4,
+      seconds: 0,
     }
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <Nav title={'Pourover Options'} left={{title: 'Back', goto: this.goBack.bind(this)}} />
+        <Nav title={'French Press Options'} left={{title: 'Back', goto: this.goBack.bind(this)}} />
         <View style={styles.aFineView}>
           <Text>Brew Time: {this.state.timeValue}</Text>
-          <View style={styles.pickerContainer}>
+          <View>
             <Picker 
-              style={styles.picker}
               selectedValue={this.state.minutes}
               onValueChange={(value) => this.setState({minutes: value})}
             >
@@ -45,7 +43,6 @@ class PouroverOptions extends Component {
             })()}
             </Picker>
             <Picker 
-              style={styles.picker}
               selectedValue={this.state.seconds}
               onValueChange={(value) => this.setState({seconds: value})}
             >
@@ -69,22 +66,10 @@ class PouroverOptions extends Component {
               })()
             }
             </Picker>
-          </View>
-          <TouchableHighlight onPress={this.setTime.bind(this)}>
+            <TouchableHighlight onPress={this.setTime.bind(this)}>
               <Text>
                 Set
               </Text>
-            </TouchableHighlight>
-          <Text>Pulse Length</Text>
-          <Slider />
-          <Text>Number of Pulses</Text>
-          <View>
-            <TouchableHighlight onPress={this.decreasePulses.bind(this)}>
-              <Text>-</Text>
-            </TouchableHighlight>
-            <Text>{this.state.numberOfPulses}</Text>
-            <TouchableHighlight onPress={this.increasePulses.bind(this)}>
-              <Text>+</Text>
             </TouchableHighlight>
           </View>
         </View>
@@ -92,22 +77,13 @@ class PouroverOptions extends Component {
     );
   }
 
+  
   setTime() {
 
     let time = this.state.minutes * 60 + this.state.seconds
     this.setState({
       timeValue: time
     })
-  }
-
-  increasePulses() {
-    if (this.state.numberOfPulses < 4)
-      this.setState({numberOfPulses: (this.state.numberOfPulses + 1)})
-  }
-
-  decreasePulses() {
-    if (this.state.numberOfPulses > 2)
-      this.setState({numberOfPulses: (this.state.numberOfPulses - 1)})
   }
 
   goBack() {
@@ -123,17 +99,7 @@ const styles = StyleSheet.create({
   aFineView: {
     flex: 0.93,
     justifyContent: 'space-around'
-  },
-  pickerContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#e9e9e9'
-  },
-  picker: {
-    flex: 0.5,
-    backgroundColor: '#eeffee',
-    alignSelf: 'flex-start'
   }
 })
 
-module.exports = PouroverOptions
+module.exports = PressOptions
