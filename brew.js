@@ -1,3 +1,5 @@
+'use strict'
+
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -7,8 +9,8 @@ import {
   View,
   TouchableHighlight
 } from 'react-native';
-Timer = require('./timer-logic.js')
-Nav = require('./nav.js')
+const Timer = require('./timer-logic.js')
+const Nav = require('./nav.js')
 
 class Brew extends Component {
   render() {
@@ -56,7 +58,7 @@ const styles = StyleSheet.create({
     padding: 15
   },
   frenchPressIcon: {
-    height: 352,
+    height: 300,
     width: 240,
     resizeMode: 'contain',
     alignSelf: 'center'

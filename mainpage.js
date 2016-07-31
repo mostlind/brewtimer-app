@@ -1,3 +1,5 @@
+'use strict'
+
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -46,6 +48,7 @@ const styles = StyleSheet.create({
   },
   helloView: {
     flex: 0.93,
+    flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: "#bbddff"

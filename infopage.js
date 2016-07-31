@@ -1,3 +1,5 @@
+'use strict'
+
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -23,17 +25,17 @@ const InfoPage = React.createClass({
       save: 'Save'
     })
 
-    AsyncStorage.getItem('ratioInfo', (err, result) => {
+    AsyncStorage.getItem('ratioInfo', (err, data) => {
       if (err) {
          console.error(err)
       }
 
-      parsedResult = JSON.parse(result)
+      let parsedData = JSON.parse(data)
 
       this.setState({
-        ratio: parsedResult.ratio || 17,
-        water: parsedResult.water || 510,
-        coffee: parsedResult.coffee || 30,
+        ratio: parsedData ? parsedData.ratio : 19,
+        water: parsedData ? parsedData.water : 510,
+        coffee: parsedData ? parsedData.coffee : 26,
       })
     })
     
@@ -137,7 +139,7 @@ const styles = StyleSheet.create({
       flex: 0.93,
       justifyContent: 'space-around',
       alignItems: 'center',
-      backgroundColor: '#f5efbb'
+      backgroundColor: '#fffacd'
     },
     label: {
       fontSize: 40

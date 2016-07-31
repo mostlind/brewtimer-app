@@ -1,3 +1,5 @@
+'use strict'
+
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -32,7 +34,8 @@ const PouroverOptions = React.createClass({
       if (err) 
         console.error(err)
       if (data) {
-        parsedData = JSON.parse(data)
+
+        let parsedData = JSON.parse(data)
 
         let timeValue = parsedData.timeValue
 
@@ -95,7 +98,10 @@ const PouroverOptions = React.createClass({
           <Text>
             Continuous Pour
           </Text>
-          <Switch onValueChange={(value) => this.setState({continuousPour: value})} value={this.state.continuousPour} />
+          <Switch 
+            onValueChange={(value) => this.setState({continuousPour: value})} 
+            value={this.state.continuousPour} 
+          />
           <Text>Number of Pulses</Text>
           <View>
             <TouchableHighlight onPress={this.decreasePulses}>

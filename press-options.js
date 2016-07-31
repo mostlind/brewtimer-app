@@ -1,3 +1,5 @@
+'use strict'
+
 import React, { Component } from 'react';
 import {range} from 'lodash'
 import {
@@ -29,9 +31,9 @@ class PressOptions extends Component {
     AsyncStorage.getItem('pressOptions', (err, data) => {
       if (err) 
         console.error(err)
-      parsedData = JSON.parse(data)
+      let parsedData = JSON.parse(data)
 
-      timeValue = parsedData ? parsedData.timeValue : 240
+      let timeValue = parsedData ? parsedData.timeValue : 240
 
       this.setState({
         timeValue: timeValue,

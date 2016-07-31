@@ -1,3 +1,5 @@
+'use strict'
+
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -9,7 +11,7 @@ import {
   AsyncStorage,
   TouchableHighlight
 } from 'react-native';
-TimerMixin = require('react-timer-mixin')
+const TimerMixin = require('react-timer-mixin')
 
 
 const Timer = React.createClass ({
@@ -26,8 +28,16 @@ const Timer = React.createClass ({
   render: function () {
     return (
       <View>
-        <TouchableHighlight style={styles.timerView} onPress={this.state.timerRunning ? this.stopTimer : this.startTimer}>
+        <TouchableHighlight 
+          style={styles.timerView} 
+          onPress={this.state.timerRunning 
+            ? this.stopTimer 
+            : this.startTimer}
+        >
+          <View>
+            { (this.props.isChemex && this.state.timerRunning) ? <Text style={styles.statusText}>Status: {this.state.status}</Text> : null }
             <Text style={styles.timerText}>{this.state.timerString}</Text>
+          </View>
         </TouchableHighlight>
         <TouchableHighlight style={styles.resetButton} onPress={this.reset}>
           <Text style={styles.resetText}>Reset</Text>
@@ -41,31 +51,52 @@ const Timer = React.createClass ({
     let timerBehavior = this.timerBehavior
     let timer
 
-    AsyncStorage.getItem(this.props.isChemex ? 'pouroverOptions' : 'pressOptions', (err, data) => {
+    AsyncStorage.getItem(this.props.isChemex ? 'pouroverOptions' : 'pressOptions', 
 
-      parsedData = JSON.parse(data)
+      (err, data) => {
 
-      if (this.props.isChemex) {
-        this.setState({
-          timeValue: parsedData ? parsedData.timeValue : 210,
-          continuousPour: parsedData ? parsedData.continuousPour : true,
-          numberOfPulses: parsedData ? parsedData.numberOfPulses : 1
-        })
-      } else {
-        this.setState({timeValue: parsedData ? parsedData.timeValue : 240})
-      }
+        let parsedData = JSON.parse(data)
 
-      timer = this.setInterval(timerBehavior, 20)
-
-      this.setState(
-        { 
-          timer: timer,
-          timerRunning: true
+        if (this.props.isChemex) {
+          this.setState({
+            timeValue: parsedData ? parsedData.timeValue : 210,
+            continuousPour: parsedData ? parsedData.continuousPour : true,
+            numberOfPulses: parsedData ? parsedData.numberOfPulses : 1
+          })
+        } else {
+          this.setState({timeValue: parsedData ? parsedData.timeValue : 240})
         }
-       )
+
+        timer = this.setInterval(timerBehavior, 1000)
+
+        this.setState(
+          { 
+            timerString: this.prettifyTime(this.state.seconds),
+            timer: timer,
+            timerRunning: true
+          }
+        )
+
+        if(this.props.isChemex) {
+          this.setState({status: "Bloom"})
+        }
 
     })
 
+    
+
+  },
+
+  statusText: function () {
+
+    if (this.props.isChemex && this.state.timerRunning) {
+
+      this.setState({status: "Bloom"})
+
+      return (
+        <Text>Status: {this.state.status}</Text>
+      )
+    }
   },
 
   timerBehavior: function () {
@@ -84,6 +115,12 @@ const Timer = React.createClass ({
         return
       }
 
+      
+
+      if(this.props.isChemex && seconds >= 30) {
+        this.setState({status: "Pour"})
+      }
+
       timerString = this.prettifyTime(seconds)
 
       this.setState(
@@ -100,7 +137,8 @@ const Timer = React.createClass ({
     let displayMinutes = Math.floor(seconds / 60)
     let displaySeconds = seconds % 60
 
-    let timerString = '' + displayMinutes + ':' + (displaySeconds.toString().length > 1 ? displaySeconds : '0' + displaySeconds)
+    let timerString = '' + displayMinutes + ':' 
+      + (displaySeconds.toString().length > 1 ? displaySeconds : '0' + displaySeconds)
 
     return timerString
 
@@ -112,7 +150,7 @@ const Timer = React.createClass ({
     this.setState({
       seconds: 0,
       timerRunning: false,
-      timerString: '0:00'
+      timerString: 'Brew!'
     })
   },
 
@@ -139,6 +177,12 @@ const styles = StyleSheet.create({
     borderRadius: 150,
     justifyContent: 'center',
     alignSelf: 'center'
+  },
+  statusText: {
+    backgroundColor: 'transparent',
+    color: '#fff',
+    fontSize: 20,
+    textAlign: 'center'
   },
   resetButton: {
     height: 70,
