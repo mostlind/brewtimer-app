@@ -8,7 +8,8 @@ import {
   Picker,
   View,
   Slider,
-  TouchableHighlight
+  TouchableHighlight,
+  AsyncStorage
 } from 'react-native';
 
 const Nav = require('./nav.js')
@@ -22,7 +23,24 @@ class PressOptions extends Component {
       timeValue: 240,
       minutes: 4,
       seconds: 0,
+      save: 'Save'
     }
+
+    AsyncStorage.getItem('pressOptions', (err, data) => {
+      if (err) 
+        console.error(err)
+      parsedData = JSON.parse(data)
+
+      timeValue = parsedData ? parsedData.timeValue : 240
+
+      this.setState({
+        timeValue: timeValue,
+        minutes: Math.floor(timeValue / 60),
+        seconds: timeValue % 60
+      })
+    })
+
+    
   }
 
   render() {
@@ -48,7 +66,7 @@ class PressOptions extends Component {
             >
             {
               (function () {
-                
+
                 let secValues = range(60)
 
                 let secOptions = secValues.map((value) => {
@@ -66,9 +84,9 @@ class PressOptions extends Component {
               })()
             }
             </Picker>
-            <TouchableHighlight onPress={this.setTime.bind(this)}>
+            <TouchableHighlight onPress={this.saveTime.bind(this)}>
               <Text>
-                Set
+                {this.state.save}
               </Text>
             </TouchableHighlight>
           </View>
@@ -78,12 +96,26 @@ class PressOptions extends Component {
   }
 
   
-  setTime() {
+  saveTime() {
 
-    let time = this.state.minutes * 60 + this.state.seconds
-    this.setState({
-      timeValue: time
+    let timeValue = this.state.minutes * 60 + this.state.seconds
+
+    let timeObj = {
+      timeValue: timeValue
+    }
+
+    AsyncStorage.setItem('pressOptions', JSON.stringify(timeObj), (err) => {
+
+      if (err) {
+        console.error(err)
+      }
+
+      this.setState({
+        timeValue: timeValue,
+        save: 'Saved'
+      })
     })
+    
   }
 
   goBack() {

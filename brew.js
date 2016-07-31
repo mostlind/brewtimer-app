@@ -27,7 +27,7 @@ class Brew extends Component {
               : require("./img/FrenchPressIcon.png")
             } 
           />
-          <Timer style={styles.brewButtonView} />
+          <Timer style={styles.brewButtonView} isChemex={this.props.isChemex} />
         </View>
       </View>
     );
