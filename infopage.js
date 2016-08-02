@@ -20,8 +20,8 @@ const InfoPage = React.createClass({
 
     this.setState({
       ratio: 19,
-      water: 510,
-      coffee: 26,
+      water: 570,
+      coffee: 30,
       save: 'Save'
     })
 
@@ -34,8 +34,8 @@ const InfoPage = React.createClass({
 
       this.setState({
         ratio: parsedData ? parsedData.ratio : 19,
-        water: parsedData ? parsedData.water : 510,
-        coffee: parsedData ? parsedData.coffee : 26,
+        water: parsedData ? parsedData.water : 570,
+        coffee: parsedData ? parsedData.coffee : 30,
       })
     })
     

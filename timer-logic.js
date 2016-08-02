@@ -41,9 +41,10 @@ const Timer = React.createClass ({
             outputRange: [250, 325]
           }),
           backgroundColor: this.state.anim.interpolate({
-            inputRange: [0, 1],
-            outputRange: ['#ff3333', '#f5f5f0']
-          })
+            inputRange: [0, 0.5, 1],
+            outputRange: ['#ff3333', '#f5f5f0', '#f5f5f0']
+          }),
+          alignItems: 'center'
 
       }]}>
         {this.state.timerRunning ? this.runningTimerLayout() : this.timerNotRunningLayout()}
@@ -75,8 +76,8 @@ const Timer = React.createClass ({
     return (
       <Animated.View style={{
         opacity: this.state.anim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [1, 0]
+          inputRange: [0, 0.5, 1],
+          outputRange: [1, 1, 0]
         })
       }}>
         <TouchableWithoutFeedback
@@ -121,7 +122,7 @@ const Timer = React.createClass ({
           this.setState({timeValue: parsedData ? parsedData.timeValue : 240})
         }
 
-        timer = this.setInterval(timerBehavior, 1000)
+        timer = this.setInterval(timerBehavior, 1)
 
         this.setState(
           { 
@@ -139,6 +140,17 @@ const Timer = React.createClass ({
           })
         }
 
+    })
+
+    AsyncStorage.getItem('ratioInfo', (err, data) => {
+      if (err) 
+        console.error(err)
+
+      let parsedRatioData = JSON.parse(data)
+
+      this.setState({
+        totalWeight: parsedRatioData ? parsedRatioData.water : 570
+      })
     })
 
   },
@@ -164,6 +176,12 @@ const Timer = React.createClass ({
 
       if (seconds >= this.state.timeValue) {
         this.clearInterval(this.state.timer)
+
+        Animated.timing(
+          this.state.anim, 
+          {toValue: 0}
+        ).start()
+
         this.setState(
           {
             seconds: 0,
@@ -174,15 +192,8 @@ const Timer = React.createClass ({
         )
         return
       }
-
       
-
-      if(this.props.isChemex && seconds >= 30) {
-        this.setState({
-          status: "Pour",
-          targetWeight: '570'
-        })
-      }
+      this.calcWight(seconds)
 
       timerString = this.prettifyTime(seconds)
 
@@ -193,6 +204,94 @@ const Timer = React.createClass ({
       }
     )
 
+
+  },
+  calcWight: function (seconds) {
+    let weight
+    let timePerPour
+    let currentStage
+    let weightPerPour
+
+    if (!this.props.isChemex) {
+      return
+    }
+
+    if(seconds <= 30) {
+      this.setState({
+        status: 'Bloom',
+        targetWeight: 50
+      })
+
+      return
+    }
+
+    if (this.state.continuousPour) {
+      this.setState({
+        status: 'Pour',
+        targetWeight: this.state.totalWeight
+      })
+
+      return
+    }
+
+    timePerPour = (this.state.timeValue - 30)/this.state.numberOfPulses
+    currentStage = Math.floor((seconds - 30)/timePerPour)
+    weightPerPour = Math.round((this.state.totalWeight - 50)/this.state.numberOfPulses)
+
+    switch(currentStage) {
+      case 0:
+        this.setState({
+          status: 'First Pour',
+          targetWeight: weightPerPour + 50
+        })
+        break
+      case 1:
+        if (this.state.numberOfPulses === 2) {
+          this.setState({
+            status: 'Final Pour',
+            targetWeight: this.state.totalWeight
+          })
+          break
+        }
+        this.setState({
+          status: 'Second Pour',
+          targetWeight: (weightPerPour * 2) + 50
+        })
+        break
+      case 2:
+        if (this.state.numberOfPulses === 3) {
+          this.setState({
+            status: 'Final Pour',
+            targetWeight: this.state.totalWeight
+          })
+          break
+        }
+
+        this.setState({
+          status: 'Third Pour',
+          targetWeight: (weightPerPour * 3) + 50
+        })
+        break
+      case 3:
+        if (this.state.numberOfPulses === 4) {
+          this.setState({
+            status: 'Final Pour',
+            targetWeight: this.state.totalWeight
+          })
+          break
+        }
+
+        this.setState({
+          status: 'Fourth Pour',
+          targetWeight: (weightPerPour * 3) + 50
+        })
+        break
+      default: 
+        this.setState({
+          status: 'Pour',
+          targetWeight: this.state.totalWeight
+        })
+    }
 
   },
   prettifyTime: function (seconds) {
@@ -260,7 +359,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 250,
     width: 250,
-    borderRadius: 250,
+    borderRadius: 300,
     justifyContent: 'center',
     alignItems: 'center'
   },
@@ -300,6 +399,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     textAlign: 'center',
     width: 50,
+    fontSize: 15
   },
 })
 
