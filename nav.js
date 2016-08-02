@@ -59,12 +59,12 @@ const styles = StyleSheet.create({
   },
   nav: {
     flex: 0.07,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f5f5f0',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: '#999999',
+    borderBottomColor: '#999994',
     paddingTop: 18
   },
   chooseText: {
@@ -74,13 +74,13 @@ const styles = StyleSheet.create({
   },
   sideRight: {
   
-    paddingRight: 10,
+    padding: 10,
     alignSelf: 'flex-end'
   
   },
   sideLeft: {
   
-    paddingLeft: 10,
+    padding: 10,
     alignSelf: 'flex-start'
   
   },

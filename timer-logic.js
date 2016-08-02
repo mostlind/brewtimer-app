@@ -9,7 +9,9 @@ import {
   View,
   Slider,
   AsyncStorage,
-  TouchableHighlight
+  Animated,
+  TouchableHighlight,
+  TouchableWithoutFeedback
 } from 'react-native';
 const TimerMixin = require('react-timer-mixin')
 
@@ -21,35 +23,87 @@ const Timer = React.createClass ({
     return {
       seconds: 0,
       timerString: 'Brew!',
-      timerRunning: false
+      timerPaused: false,
+      timerRunning: false,
+      anim: new Animated.Value(0)
     }
   },
 
   render: function () {
     return (
-      <View>
-        <TouchableHighlight 
-          style={styles.timerView} 
-          onPress={this.state.timerRunning 
-            ? this.stopTimer 
-            : this.startTimer}
-        >
-          <View>
-            { (this.props.isChemex && this.state.timerRunning) ? <Text style={styles.statusText}>Status: {this.state.status}</Text> : null }
-            <Text style={styles.timerText}>{this.state.timerString}</Text>
-          </View>
-        </TouchableHighlight>
-        <TouchableHighlight style={styles.resetButton} onPress={this.reset}>
-          <Text style={styles.resetText}>Reset</Text>
-        </TouchableHighlight>
-      </View>
+      <Animated.View style={[styles.timerView, {
+          borderRadius: this.state.anim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [250,5]
+          }),
+          width: this.state.anim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [250, 325]
+          }),
+          backgroundColor: this.state.anim.interpolate({
+            inputRange: [0, 1],
+            outputRange: ['#ff3333', '#f5f5f0']
+          })
+
+      }]}>
+        {this.state.timerRunning ? this.runningTimerLayout() : this.timerNotRunningLayout()}
+      </Animated.View>
     );
+  },
+
+  runningTimerLayout: function () {
+    return (
+      <Animated.View style={{opacity: this.state.anim}}>
+        <View>
+          { (this.props.isChemex && this.state.timerRunning) ? <Text style={styles.statusText}>{this.state.status}</Text> : null }
+          { (this.props.isChemex && this.state.timerRunning) ? <Text style={styles.statusText}>Weight: {this.state.targetWeight}g</Text> : null }
+          <Text style={[styles.timerText, this.state.timerRunning ? {color: '#333'} : {color: '#fff'}]}>{this.state.timerString}</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableHighlight style={[styles.pauseButton]} onPress={this.state.timerPaused ? this.startTimer : this.pause}>
+              <Text style={styles.resetText}>Pause</Text>
+            </TouchableHighlight>
+            <TouchableHighlight style={[styles.resetButton]} onPress={this.reset}>
+              <Text style={[styles.resetText, {color: '#fff'}]}>Reset</Text>
+            </TouchableHighlight>
+          </View>
+        </View>
+      </Animated.View>
+    )
+  },
+
+  timerNotRunningLayout: function () {
+    return (
+      <Animated.View style={{
+        opacity: this.state.anim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [1, 0]
+        })
+      }}>
+        <TouchableWithoutFeedback
+
+            styles={{justifyContent: 'center', alignItems: 'center'}}
+
+            onPress={this.state.timerRunning 
+              ? this.stopTimer 
+              : this.startTimer}
+          >
+            <View style={styles.notRunningTimer}>
+              <Text style={[styles.timerText, {color: '#fff'}]}>{this.state.timerString}</Text>
+            </View>
+          </TouchableWithoutFeedback>
+        </Animated.View>
+      )
   },
 
   startTimer: function () {
 
     let timerBehavior = this.timerBehavior
     let timer
+
+    Animated.timing(
+      this.state.anim, 
+      {toValue: 1}
+    ).start()
 
     AsyncStorage.getItem(this.props.isChemex ? 'pouroverOptions' : 'pressOptions', 
 
@@ -73,17 +127,19 @@ const Timer = React.createClass ({
           { 
             timerString: this.prettifyTime(this.state.seconds),
             timer: timer,
-            timerRunning: true
+            timerRunning: true,
+            timerPaused: false
           }
         )
 
         if(this.props.isChemex) {
-          this.setState({status: "Bloom"})
+          this.setState({
+              status: "Bloom",
+              targetWeight: '50'
+          })
         }
 
     })
-
-    
 
   },
 
@@ -91,7 +147,10 @@ const Timer = React.createClass ({
 
     if (this.props.isChemex && this.state.timerRunning) {
 
-      this.setState({status: "Bloom"})
+      this.setState({
+        status: "Bloom",
+        targetWeight: '30'
+      })
 
       return (
         <Text>Status: {this.state.status}</Text>
@@ -109,6 +168,7 @@ const Timer = React.createClass ({
           {
             seconds: 0,
             timerString: 'Done!',
+            timerPaused: false,
             timerRunning: false
           }
         )
@@ -118,7 +178,10 @@ const Timer = React.createClass ({
       
 
       if(this.props.isChemex && seconds >= 30) {
-        this.setState({status: "Pour"})
+        this.setState({
+          status: "Pour",
+          targetWeight: '570'
+        })
       }
 
       timerString = this.prettifyTime(seconds)
@@ -147,15 +210,29 @@ const Timer = React.createClass ({
   reset: function () {
     this.clearInterval(this.state.timer)
 
+    Animated.timing(
+      this.state.anim, 
+      {toValue: 0}
+    ).start()
+
     this.setState({
       seconds: 0,
+      timerPaused: false,
       timerRunning: false,
       timerString: 'Brew!'
     })
   },
 
-  stopTimer: function () {
+  pause: function () {
     this.clearInterval(this.state.timer)
+
+    this.setState({timerPaused: true})
+  },
+
+  stopTimer: function () {
+
+    this.clearInterval(this.state.timer)
+
     this.setState({timerRunning: false})
   }
 
@@ -163,43 +240,67 @@ const Timer = React.createClass ({
 
 const styles = StyleSheet.create({
   timerText: {
-    color: "#ffffff",
-    textAlign: 'center',
+    //color: "#ffffff",
+    textAlign: 'left',
     fontSize: 90,
     alignSelf: 'center',
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
+    justifyContent: 'center'
   },
   timerView: {
-    flex: 1,
+    //flex: 1,
     height: 250,
-    width: 250,
-    backgroundColor: "#ff3333",
-    borderRadius: 150,
+    //width: 250,
+    //backgroundColor: "#ff3333",
+    //borderRadius: 150,
     justifyContent: 'center',
     alignSelf: 'center'
   },
+  notRunningTimer: {
+    flexDirection: 'row',
+    height: 250,
+    width: 250,
+    borderRadius: 250,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
   statusText: {
     backgroundColor: 'transparent',
-    color: '#fff',
+    color: '#333',
     fontSize: 20,
     textAlign: 'center'
   },
   resetButton: {
-    height: 70,
+    height: 40,
     width: 70,
-    borderRadius: 100,
-    position: 'absolute',
-    left: 0,
-    bottom: 0,
-    backgroundColor: 'white',
-    justifyContent: 'center'
+    borderRadius: 4,
+    backgroundColor: '#ff2222',
+    justifyContent: 'center',
+    margin: 10
+  },
+  pauseButton: {
+    height: 40,
+    width: 70,
+    borderRadius: 4,
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#333',
+    justifyContent: 'center',
+    margin: 10
+  },
+  buttonContainer: {
+    //flex: 0.1,
+    flexDirection: 'row',
+    //position: 'absolute',
+    //bottom: 0,
+    alignSelf: 'center',
+    justifyContent: 'space-between'
   },
   resetText: {
     alignSelf: 'center',
     textAlign: 'center',
     width: 50,
-
-  }
+  },
 })
 
 module.exports = Timer
